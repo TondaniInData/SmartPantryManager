@@ -98,7 +98,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    // --- PANTRY OPERATIONS ---
+    // --- PANTRY OPERATIONS (CRUD) ---
 
     /**
      * Adds a new item to the pantry inventory.
@@ -123,7 +123,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COL_PANTRY_QUANTITY, quantity);
         values.put(COL_PANTRY_UNIT, unit.trim().toLowerCase());
         values.put(COL_PANTRY_EXPIRY, expiryDate);
-        return db.update(TABLE_PANTRY, values, COL_PANTRY_ID + "=?", new String[]{String.valueOf(id)}) > 0;
+        return db.update(TABLE_PANTRY, values, COL_PANTRY_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
+    }
+
+    /**
+     * Deletes a pantry item by its unique ID.
+     */
+    public boolean deletePantryItem(long id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(TABLE_PANTRY, COL_PANTRY_ID + " = ?", new String[]{String.valueOf(id)}) > 0;
     }
 
     /**
@@ -135,9 +143,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Retrieves a specific pantry item by its unique ID.
+     * Retrieves a Cursor containing a specific pantry item by its unique ID.
      */
-    public PantryItem getPantryItemById(long id) {
+    public Cursor getPantryItemById(long id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_PANTRY + " WHERE " + COL_PANTRY_ID + " = ?", new String[]{String.valueOf(id)});
+    }
+
+    /**
+     * Retrieves a PantryItem object by its unique ID.
+     */
+    public PantryItem getPantryItemObjectById(long id) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_PANTRY + " WHERE " + COL_PANTRY_ID + " = ?", new String[]{String.valueOf(id)});
         if (cursor != null && cursor.moveToFirst()) {
@@ -148,15 +164,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
             return new PantryItem(id, name, qty, unit, expiry);
         }
+        if (cursor != null) {
+            cursor.close();
+        }
         return null;
-    }
-
-    /**
-     * Deletes a pantry item by its unique ID.
-     */
-    public boolean deletePantryItem(long id) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete(TABLE_PANTRY, COL_PANTRY_ID + "=?", new String[]{String.valueOf(id)}) > 0;
     }
 
     // --- RECIPE SEEDING & MATCHING OPERATIONS ---
@@ -287,7 +298,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Cursor ingCursor = db.rawQuery(ingQuery, new String[]{String.valueOf(recipeId)});
 
             StringBuilder ingredientsBuilder = new StringBuilder();
-            if (ingCursor != null && ingCursor.moveToFirst())  {
+            if (ingCursor != null && ingCursor.moveToFirst()) {
                 do {
                     String ingName = ingCursor.getString(ingCursor.getColumnIndexOrThrow(COL_RI_NAME));
                     double qty = ingCursor.getDouble(ingCursor.getColumnIndexOrThrow(COL_RI_QUANTITY));
@@ -305,6 +316,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             Recipe recipe = new Recipe(recipeId, name, ingredientsBuilder.toString());
             recipe.setInstructions(instructions);
             return recipe;
+        }
+        if (cursor != null) {
+            cursor.close();
         }
         return null;
     }
