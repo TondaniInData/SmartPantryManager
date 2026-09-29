@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -17,20 +18,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="Eggs" />
 
         <TextView
             android:id="@+id/tvPantryQuantity"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            android:textColor="?android:attr/textColorSecondary"
+            tools:text="12 pcs" />
 
         <TextView
             android:id="@+id/tvPantryExpiry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="12sp"
-            android:textColor="#777777" />
+            android:textColor="#777777"
+            tools:text="Expires: 2026-10-15" />
     </LinearLayout>
 
     <ImageButton
@@ -38,6 +44,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Delete item"
         android:src="@android:drawable/ic_menu_delete" />
 
 </LinearLayout>
